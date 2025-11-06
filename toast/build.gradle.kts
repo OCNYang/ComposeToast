@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.androidLint)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    id("maven-publish")
 }
 
 kotlin {
@@ -139,4 +140,18 @@ kotlin {
         }
     }
 
+}
+
+// Maven publishing configuration for JitPack
+group = "com.github.ocnyang"  // Replace with your GitHub username
+version = "1.0.0"
+
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            groupId = "com.github.ocnyang"  // Replace with your GitHub username
+            artifactId = "compose-toast"
+            version = "1.0.0"
+        }
+    }
 }

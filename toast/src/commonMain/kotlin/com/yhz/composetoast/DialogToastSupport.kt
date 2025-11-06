@@ -5,25 +5,25 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 
 /**
- * Dialog 内容包装器，自动处理跨平台的 Toast 显示
+ * Dialog content wrapper that automatically handles cross-platform Toast display
  *
- * 在 Android 和 iOS 平台上，AlertDialog 的窗口层级高于 Popup，
- * 导致 Toast 无法显示在 Dialog 之上。此函数会根据平台自动处理：
+ * On Android and iOS platforms, AlertDialog's window layer is higher than Popup,
+ * preventing Toast from appearing above Dialogs. This function handles it automatically:
  *
- * - **Android/iOS**: 在 Dialog 内部添加 ToastHost，Toast 显示在 Dialog 内部
- * - **Desktop/Web**: 使用全局的 Popup ToastHost，Toast 可以显示在 Dialog 之上
+ * - **Android/iOS**: Adds ToastHost inside Dialog, Toast displays within Dialog
+ * - **Desktop/Web**: Uses global Popup ToastHost, Toast can appear above Dialog
  *
- * ## 使用示例
+ * ## Usage Example
  *
  * ```kotlin
  * val toastManager = remember { ToastManager() }
  *
- * // 在应用根部使用 ToastHost
+ * // Use ToastHost at app root
  * ToastHost(toastManager = toastManager) {
  *     YourAppContent()
  * }
  *
- * // 在 Dialog 中使用 dialogToastContent
+ * // Use dialogToastContent in Dialog
  * AlertDialog(
  *     onDismissRequest = { ... },
  *     title = { Text("Dialog Title") },
@@ -42,8 +42,8 @@ import androidx.compose.runtime.remember
  * )
  * ```
  *
- * @param toastManager Toast 管理器实例
- * @param content Dialog 的内容
+ * @param toastManager Toast manager instance
+ * @param content Dialog content
  */
 @Composable
 fun DialogToastContent(
@@ -51,34 +51,34 @@ fun DialogToastContent(
     content: @Composable () -> Unit
 ) {
     if (needsDialogToastWrapper()) {
-        // Android/iOS: 在 Dialog 内部添加 ToastHost
-        // Toast 会显示在 Dialog 内部，但保证可见
+        // Android/iOS: Add ToastHost inside Dialog
+        // Toast displays inside Dialog but remains visible
         ToastHost(toastManager = toastManager) {
             content()
         }
     } else {
-        // Desktop/Web/WASM: Popup 可以显示在 Dialog 之上
-        // 不需要额外包装，使用全局的 ToastHost
+        // Desktop/Web/WASM: Popup can appear above Dialog
+        // No wrapper needed, use global ToastHost
         content()
     }
 }
 
 /**
- * 为 Composable 提供独立的 ToastManager，并自动管理其生命周期
+ * Provides an independent ToastManager for a Composable and automatically manages its lifecycle
  *
- * 当 [show] 为 true 时创建 ToastManager，为 false 时自动清理。
- * 适用于 Dialog、BottomSheet、ModalDrawer 等需要独立 Toast 显示的临时组件。
+ * Creates ToastManager when [show] is true, clears automatically when false.
+ * Suitable for temporary components like Dialog, BottomSheet, ModalDrawer that need independent Toast display.
  *
- * ## 特性
+ * ## Features
  *
- * - **自动生命周期管理**：随 [show] 状态自动创建和销毁 ToastManager
- * - **资源自动清理**：组件消失时自动清空 Toast 队列
- * - **完全独立**：不与全局 Toast 冲突
- * - **通用性强**：适用于任何需要临时 ToastManager 的场景
+ * - **Automatic lifecycle management**: Creates/destroys ToastManager based on [show] state
+ * - **Automatic resource cleanup**: Clears Toast queue when component disappears
+ * - **Complete independence**: Doesn't conflict with global Toast
+ * - **Highly versatile**: Works with any temporary ToastManager scenarios
  *
- * ## 使用示例
+ * ## Usage Examples
  *
- * ### 在 Dialog 中使用
+ * ### In Dialog
  * ```kotlin
  * var showDialog by remember { mutableStateOf(false) }
  *
@@ -92,20 +92,20 @@ fun DialogToastContent(
  *             }
  *         },
  *         confirmButton = {
- *             Button(onClick = { toastManager.showSuccess("操作成功！") }) {
- *                 Text("确定")
+ *             Button(onClick = { toastManager.showSuccess("Success!") }) {
+ *                 Text("Confirm")
  *             }
  *         },
  *         dismissButton = {
  *             TextButton(onClick = { showDialog = false }) {
- *                 Text("取消")
+ *                 Text("Cancel")
  *             }
  *         }
  *     )
  * }
  * ```
  *
- * ### 在 BottomSheet 中使用
+ * ### In BottomSheet
  * ```kotlin
  * var showBottomSheet by remember { mutableStateOf(false) }
  *
@@ -115,15 +115,15 @@ fun DialogToastContent(
  *     ) {
  *         Column(modifier = Modifier.padding(16.dp)) {
  *             Text("Bottom Sheet Content")
- *             Button(onClick = { toastManager.showInfo("来自 BottomSheet 的 Toast") }) {
- *                 Text("显示 Toast")
+ *             Button(onClick = { toastManager.showInfo("Toast from BottomSheet") }) {
+ *                 Text("Show Toast")
  *             }
  *         }
  *     }
  * }
  * ```
  *
- * ### 在自定义弹窗中使用
+ * ### In Custom Popup
  * ```kotlin
  * var showCustomPopup by remember { mutableStateOf(false) }
  *
@@ -135,8 +135,8 @@ fun DialogToastContent(
  *         Card(modifier = Modifier.padding(16.dp)) {
  *             Column(modifier = Modifier.padding(16.dp)) {
  *                 Text("Custom Popup")
- *                 Button(onClick = { toastManager.showWarning("警告信息") }) {
- *                     Text("显示警告")
+ *                 Button(onClick = { toastManager.showWarning("Warning message") }) {
+ *                     Text("Show Warning")
  *                 }
  *             }
  *         }
@@ -144,25 +144,25 @@ fun DialogToastContent(
  * }
  * ```
  *
- * ## 工作原理
+ * ## How It Works
  *
- * 1. 当 `show = true` 时，通过 `remember` 创建新的 ToastManager 实例
- * 2. 使用 `DisposableEffect` 监听组件生命周期
- * 3. 当 `show = false` 时，`onDispose` 被调用，清空 Toast 队列
- * 4. 每次从 false → true，都会创建全新的 ToastManager 实例
+ * 1. When `show = true`, creates new ToastManager instance via `remember`
+ * 2. Uses `DisposableEffect` to monitor component lifecycle
+ * 3. When `show = false`, `onDispose` is called, clearing Toast queue
+ * 4. Each false → true transition creates a brand new ToastManager instance
  *
- * ## 注意事项
+ * ## Notes
  *
- * - **独立性**：此组件创建的 ToastManager 与全局 `Toast` 对象完全独立
- * - **作用域**：ToastManager 的生命周期严格绑定到 [show] 参数
- * - **配置变更**：屏幕旋转等配置变更会导致 ToastManager 重建（Toast 队列会丢失）
- * - **跨平台兼容**：在 Android/iOS 上使用 Dialog 时，需要配合 [DialogToastContent] 使用
+ * - **Independence**: Created ToastManager is completely independent from global `Toast` object
+ * - **Scope**: ToastManager lifecycle is strictly bound to [show] parameter
+ * - **Configuration changes**: Screen rotation may cause ToastManager rebuild (Toast queue will be lost)
+ * - **Cross-platform**: When using Dialog on Android/iOS, must use [DialogToastContent]
  *
- * @param show 是否显示内容（同时决定 ToastManager 的生命周期）
- * @param content 内容 Composable，接收独立的 ToastManager 作为参数
+ * @param show Whether to show content (also determines ToastManager lifecycle)
+ * @param content Content Composable receiving independent ToastManager as parameter
  *
- * @see DialogToastContent 用于在 Dialog 内部正确显示 Toast
- * @see ToastManager Toast 管理器，负责队列管理和自动消失
+ * @see DialogToastContent For correctly displaying Toast inside Dialog
+ * @see ToastManager Toast manager responsible for queue management and auto-dismissal
  */
 @Composable
 fun WithToastComposable(
@@ -179,8 +179,8 @@ fun WithToastComposable(
             }
             content(dialogToastManager)
         } else {
-            // Desktop/Web/WASM: Popup 可以显示在 Dialog 之上
-            // 不需要额外包装，使用全局的 ToastHost
+            // Desktop/Web/WASM: Popup can appear above Dialog
+            // No wrapper needed, use global ToastHost
             content(rememberToastManager())
         }
     }

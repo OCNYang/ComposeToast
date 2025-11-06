@@ -19,21 +19,21 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * Toast 管理器
+ * Toast Manager
  *
- * 负责管理 Toast 的队列、显示和自动消失
+ * Manages the Toast queue, display, and automatic dismissal
  */
 class ToastManager : ViewModel() {
 
-    // Toast 队列
+    // Toast queue
     private val _toastQueue = MutableStateFlow<List<ToastData>>(emptyList())
 
-    // 当前显示的 Toast
+    // Currently displayed Toast
     private val _currentToast = MutableStateFlow<ToastData?>(null)
     val currentToast: StateFlow<ToastData?> = _currentToast.asStateFlow()
 
     /**
-     * 显示 Toast
+     * Shows a Toast with custom configuration
      */
     fun showToast(
         message: String,
@@ -58,14 +58,14 @@ class ToastManager : ViewModel() {
 
         _toastQueue.update { it + toast }
 
-        // 如果当前没有显示 Toast，立即显示
+        // Show immediately if no Toast is currently displayed
         if (_currentToast.value == null) {
             showNextToast()
         }
     }
 
     /**
-     * 显示成功 Toast
+     * Shows a success Toast
      */
     fun showSuccess(
         message: String,
@@ -86,7 +86,7 @@ class ToastManager : ViewModel() {
     }
 
     /**
-     * 显示错误 Toast
+     * Shows an error Toast
      */
     fun showError(
         message: String,
@@ -107,7 +107,7 @@ class ToastManager : ViewModel() {
     }
 
     /**
-     * 显示警告 Toast
+     * Shows a warning Toast
      */
     fun showWarning(
         message: String,
@@ -128,7 +128,7 @@ class ToastManager : ViewModel() {
     }
 
     /**
-     * 显示信息 Toast
+     * Shows an info Toast
      */
     fun showInfo(
         message: String,
@@ -149,7 +149,7 @@ class ToastManager : ViewModel() {
     }
 
     /**
-     * 显示队列中的下一个 Toast
+     * Shows the next Toast from the queue
      */
     private fun showNextToast() {
         viewModelScope.launch {
@@ -159,7 +159,7 @@ class ToastManager : ViewModel() {
                 _currentToast.value = toast
                 _toastQueue.update { it.drop(1) }
 
-                // 自动消失
+                // Auto-dismiss after duration
                 delay(toast.duration)
                 dismissCurrent()
             }
@@ -167,7 +167,7 @@ class ToastManager : ViewModel() {
     }
 
     /**
-     * 关闭当前 Toast
+     * Dismisses the current Toast
      */
     fun dismissCurrent() {
         _currentToast.value = null
@@ -175,7 +175,7 @@ class ToastManager : ViewModel() {
     }
 
     /**
-     * 清除所有 Toast
+     * Clears all Toasts from queue and dismisses current Toast
      */
     fun clear() {
         _currentToast.value = null
@@ -184,26 +184,26 @@ class ToastManager : ViewModel() {
 }
 
 /**
- * 全局 Toast 对象
+ * Global Toast object
  *
- * 提供全局访问点，可在任何地方调用显示 Toast
+ * Provides a global access point to show Toasts from anywhere in your app
  *
- * ## 使用示例
+ * ## Usage Example
  *
  * ```kotlin
- * // 在 Composable 函数中
- * Toast.showSuccess("操作成功！")
+ * // In Composable functions
+ * Toast.showSuccess("Operation successful!")
  *
- * // 在 ViewModel 中
+ * // In ViewModels
  * class MyViewModel : ViewModel() {
  *     fun doSomething() {
- *         Toast.showInfo("正在处理...")
+ *         Toast.showInfo("Processing...")
  *     }
  * }
  *
- * // 在普通类中
+ * // In regular classes
  * fun handleError() {
- *     Toast.showError("发生错误！")
+ *     Toast.showError("An error occurred!")
  * }
  * ```
  */
@@ -223,7 +223,7 @@ object Toast {
     }
 
     /**
-     * 显示自定义 Toast
+     * Shows a custom Toast
      */
     fun show(
         message: String,
@@ -248,7 +248,7 @@ object Toast {
     }
 
     /**
-     * 显示信息 Toast
+     * Shows an info Toast
      */
     fun showInfo(
         message: String,
@@ -262,7 +262,7 @@ object Toast {
     }
 
     /**
-     * 显示成功 Toast
+     * Shows a success Toast
      */
     fun showSuccess(
         message: String,
@@ -276,7 +276,7 @@ object Toast {
     }
 
     /**
-     * 显示警告 Toast
+     * Shows a warning Toast
      */
     fun showWarning(
         message: String,
@@ -290,7 +290,7 @@ object Toast {
     }
 
     /**
-     * 显示错误 Toast
+     * Shows an error Toast
      */
     fun showError(
         message: String,
@@ -304,7 +304,7 @@ object Toast {
     }
 
     /**
-     * 清除所有 Toast
+     * Clears all Toasts
      */
     fun clear() {
         get().clear()
@@ -314,17 +314,17 @@ object Toast {
 /**
  * CompositionLocal for ToastManager
  *
- * 允许在 Compose 树中传递 ToastManager 实例
+ * Allows passing ToastManager instance through the Compose tree
  */
 val LocalToastManager = compositionLocalOf<ToastManager?> { null }
 
 /**
- * 提供 ToastManager 的 Composable 包装器
+ * Composable wrapper that provides ToastManager
  *
- * 这个函数会自动创建 ToastManager 并设置全局 Toast 访问点。
- * 应该在应用的根组件使用。
+ * This function automatically creates a ToastManager and sets up the global Toast access point.
+ * Should be used at the root of your application.
  *
- * ## 使用示例
+ * ## Usage Example
  *
  * ```kotlin
  * @Composable
@@ -337,7 +337,8 @@ val LocalToastManager = compositionLocalOf<ToastManager?> { null }
  * }
  * ```
  *
- * @param content 应用内容
+ * @param toastContent Custom Toast layout (optional, uses default if null)
+ * @param content Application content
  */
 @Composable
 fun ProvideToastManager(
@@ -346,7 +347,7 @@ fun ProvideToastManager(
 ) {
     val toastManager = remember { ToastManager() }
 
-    // 自动设置全局实例
+    // Automatically set global instance
     DisposableEffect(toastManager) {
         Toast.setInstance(toastManager)
         onDispose { }
@@ -365,18 +366,18 @@ fun ProvideToastManager(
 }
 
 /**
- * 获取当前的 ToastManager 实例
+ * Gets the current ToastManager instance
  *
- * 优先从 CompositionLocal 获取，如果不可用则使用全局实例。
+ * Retrieves from CompositionLocal first, falls back to global instance if unavailable.
  *
- * ## 使用示例
+ * ## Usage Example
  *
  * ```kotlin
  * @Composable
  * fun MyScreen() {
  *     val toastManager = rememberToastManager()
- *     Button(onClick = { toastManager.showSuccess("成功！") }) {
- *         Text("点击")
+ *     Button(onClick = { toastManager.showSuccess("Success!") }) {
+ *         Text("Click")
  *     }
  * }
  * ```

@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
- * Toast 显示位置
+ * Position where the Toast should appear on screen
  */
 enum class ToastPosition {
     TOP,
@@ -13,13 +13,13 @@ enum class ToastPosition {
 }
 
 /**
- * Toast 默认颜色配置
+ * Default color configurations for different Toast types
  *
- * 可以通过修改这个对象来自定义全局的 Toast 颜色
+ * Modify these values to customize the global Toast appearance across your app
  */
 object ToastDefaults {
     /**
-     * 成功 Toast 默认颜色
+     * Default colors for success Toast
      */
     object Success {
         val backgroundColor = Color(0xf64CAF50)
@@ -28,7 +28,7 @@ object ToastDefaults {
     }
 
     /**
-     * 错误 Toast 默认颜色
+     * Default colors for error Toast
      */
     object Error {
         val backgroundColor = Color(0xF6F44336)
@@ -37,7 +37,7 @@ object ToastDefaults {
     }
 
     /**
-     * 警告 Toast 默认颜色
+     * Default colors for warning Toast
      */
     object Warning {
         val backgroundColor = Color(0xF6FF9800)
@@ -46,9 +46,9 @@ object ToastDefaults {
     }
 
     /**
-     * 信息 Toast 默认颜色
+     * Default colors for info Toast
      *
-     * 注意：Info Toast 默认使用 null，会自动使用 Material Theme 颜色
+     * Note: Info Toast uses null by default, which falls back to Material Theme colors
      */
     object Info {
         val backgroundColor: Color? = null
@@ -58,11 +58,11 @@ object ToastDefaults {
 }
 
 /**
- * Toast 操作按钮数据
+ * Action button data for Toast
  *
- * @param label 按钮文本
- * @param actionColor 按钮文本颜色（可选）
- * @param onAction 点击回调
+ * @param label Button text
+ * @param actionColor Button text color (optional, defaults to Material Theme primary color)
+ * @param onAction Click callback
  */
 data class ActionData(
     val label: String,
@@ -71,17 +71,17 @@ data class ActionData(
 )
 
 /**
- * Toast 数据模型
+ * Toast data model
  *
- * @param id Toast 唯一标识符
- * @param message 显示的消息内容
- * @param imageVector Toast 图标（可选），如果为 null 则不显示图标
- * @param backgroundColor 背景颜色（可选）
- * @param textColor 文本颜色（可选）
- * @param iconColor 图标颜色（可选）
- * @param duration 显示时长（毫秒），默认 2000ms
- * @param position 显示位置
- * @param actions 操作按钮列表
+ * @param id Unique identifier for the Toast
+ * @param message Message content to display
+ * @param imageVector Icon to display (optional, no icon shown if null)
+ * @param backgroundColor Background color (optional, uses Material Theme if null)
+ * @param textColor Text color (optional, uses Material Theme if null)
+ * @param iconColor Icon color (optional, uses Material Theme if null)
+ * @param duration Display duration in milliseconds (default: 2000ms)
+ * @param position Display position on screen
+ * @param actions List of action buttons
  */
 data class ToastData(
     val id: String = generateUUID(),
@@ -96,7 +96,7 @@ data class ToastData(
 )
 
 /**
- * 生成简单的 UUID
+ * Generates a simple UUID for Toast identification
  */
 private fun generateUUID(): String {
     val timestamp = currentTimeMillis()
@@ -105,6 +105,6 @@ private fun generateUUID(): String {
 }
 
 /**
- * 获取当前时间戳（跨平台）
+ * Platform-specific implementation to get current timestamp in milliseconds
  */
 internal expect fun currentTimeMillis(): Long

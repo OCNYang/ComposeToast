@@ -10,14 +10,14 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 /**
- * Toast 图标集合
+ * Toast icon collection
  *
- * 提供用于不同类型 Toast 的矢量图标
+ * Provides vector icons for different Toast types
  */
 object ToastIcons {
 
     /**
-     * 成功图标（圆形对勾）
+     * Success icon (checkmark in circle)
      */
     val Success: ImageVector
         get() {
@@ -73,7 +73,7 @@ object ToastIcons {
     private var _success: ImageVector? = null
 
     /**
-     * 信息图标（圆形 i）
+     * Info icon (i in circle)
      */
     val Info: ImageVector
         get() {
@@ -130,7 +130,7 @@ object ToastIcons {
     private var _info: ImageVector? = null
 
     /**
-     * 错误图标（圆形叉号）
+     * Error icon (X in circle)
      */
     val Error: ImageVector
         get() {
@@ -189,7 +189,7 @@ object ToastIcons {
     private var _error: ImageVector? = null
 
     /**
-     * 警告图标（圆形感叹号）
+     * Warning icon (exclamation mark in circle)
      */
     val Warning: ImageVector
         get() {

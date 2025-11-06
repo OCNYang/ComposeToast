@@ -46,7 +46,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun App() {
     MaterialTheme {
-        ProvideToastManager(toastContent = null) { // 可以通过这里自定义全局的 Toast Layout
+        ProvideToastManager(toastContent = null) { // Can customize global Toast layout here
             ToastDemoScreen()
         }
     }
@@ -333,7 +333,7 @@ fun ToastDemoScreen() {
                 Text("Dialog Example")
             },
             text = {
-                // 使用 dialogToastContent 包装，自动处理跨平台 Toast 显示
+                // Use DialogToastContent wrapper to automatically handle cross-platform Toast display
                 DialogToastContent(toastManager = toastManager) {
                     Text("Click the button below to show a toast from inside this dialog!")
                 }
@@ -364,7 +364,6 @@ private fun CustomToastContent(
     maxWidth: Dp,
     onDismiss: () -> Unit,
 ) {
-    // 使用自定义颜色或默认 Material 主题颜色
     val backgroundColor = toast.backgroundColor ?: MaterialTheme.colorScheme.surfaceVariant
     val textColor = toast.textColor ?: MaterialTheme.colorScheme.onSurfaceVariant
     val iconColor = toast.iconColor ?: MaterialTheme.colorScheme.primary
@@ -372,9 +371,9 @@ private fun CustomToastContent(
 
     Card(
         modifier = Modifier
-            .wrapContentWidth()     // 宽度自适应内容
-            .widthIn(max = maxWidth)  // 动态最大宽度
-            .wrapContentHeight(),   // 高度自适应内容
+            .wrapContentWidth()
+            .widthIn(max = maxWidth)
+            .wrapContentHeight(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = backgroundColor
@@ -383,12 +382,11 @@ private fun CustomToastContent(
     ) {
         Column(
             modifier = Modifier
-                .wrapContentWidth()  // 宽度自适应内容，不再填充满
+                .wrapContentWidth()
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 图标（仅当 imageVector 不为 null 时显示）
             toast.imageVector?.let { icon ->
                 Icon(
                     imageVector = icon,
@@ -398,7 +396,6 @@ private fun CustomToastContent(
                 )
             }
 
-            // 消息
             Text(
                 text = toast.message,
                 style = MaterialTheme.typography.bodyMedium,
@@ -406,7 +403,6 @@ private fun CustomToastContent(
             )
 
             Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                // 操作按钮列表
                 toast.actions.forEach { action ->
                     TextButton(
                         onClick = {

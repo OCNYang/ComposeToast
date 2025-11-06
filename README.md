@@ -1,76 +1,259 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM).
+# Compose Toast
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+[![](https://jitpack.io/v/yourusername/ComposeToast.svg)](https://jitpack.io/#yourusername/ComposeToast)
+![badge][badge-android]
+![badge][badge-ios]
+![badge][badge-js]
+![badge][badge-wasm]
+![badge][badge-jvm]
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+A beautiful, customizable Toast library for Kotlin Multiplatform Compose with support for Android, iOS, Desktop, Web, and WASM.
 
-### Build and Run Android Application
+## Live Demo
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+**[Try the Web Demo](https://yourusername.github.io/ComposeToast/)**
 
-### Build and Run Desktop (JVM) Application
+Experience all the Toast features directly in your browser!
 
-To build and run the development version of the desktop app, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:run
-  ```
+## Features
 
-### Build and Run Web Application
+- ✅ **Kotlin Multiplatform** - Works on Android, iOS, Desktop, Web, and WASM
+- 🎨 **Fully Customizable** - Custom colors, icons, and layouts
+- 📍 **Multiple Positions** - Top, Center, Bottom
+- ⚡ **Action Buttons** - Add interactive action buttons to your toasts
+- 🔄 **Queue Management** - Automatic toast queue with smooth transitions
+- 🎭 **Built-in Types** - Success, Error, Warning, Info with default styling
+- 🪟 **Dialog Support** - Works correctly inside Dialogs across all platforms
+- 🎯 **Type-Safe API** - Kotlin-first API with default parameters
 
-To build and run the development version of the web app, use the run configuration from the run widget
-in your IDE's toolbar or run it directly from the terminal:
-- for the Wasm target (faster, modern browsers):
-  - on macOS/Linux
-    ```shell
-    ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
-    ```
-  - on Windows
-    ```shell
-    .\gradlew.bat :composeApp:wasmJsBrowserDevelopmentRun
-    ```
-- for the JS target (slower, supports older browsers):
-  - on macOS/Linux
-    ```shell
-    ./gradlew :composeApp:jsBrowserDevelopmentRun
-    ```
-  - on Windows
-    ```shell
-    .\gradlew.bat :composeApp:jsBrowserDevelopmentRun
-    ```
+## Installation
 
-### Build and Run iOS Application
+### Step 1: Add JitPack repository
 
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+Add it in your root `build.gradle.kts` at the end of repositories:
+
+```kotlin
+allprojects {
+    repositories {
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+```
+
+Or in `settings.gradle.kts`:
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+```
+
+### Step 2: Add the dependency
+
+In your module's `build.gradle.kts`:
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation("com.github.yourusername:ComposeToast:1.0.0")
+            }
+        }
+    }
+}
+```
+
+Replace `yourusername` with your actual GitHub username and `1.0.0` with the desired version or tag.
+
+## Quick Start
+
+### 1. Setup ToastManager at your app root
+
+```kotlin
+@Composable
+fun App() {
+    MaterialTheme {
+        ProvideToastManager {
+            YourAppContent()
+        }
+    }
+}
+```
+
+### 2. Show Toasts from anywhere
+
+```kotlin
+// Success Toast
+Toast.showSuccess("Operation completed!")
+
+// Error Toast
+Toast.showError("Something went wrong!")
+
+// Warning Toast
+Toast.showWarning("Please check your input")
+
+// Info Toast
+Toast.showInfo("Processing your request...")
+
+// Custom Toast
+Toast.show(
+    message = "Custom message",
+    imageVector = Icons.Default.Star,
+    backgroundColor = Color.Blue,
+    textColor = Color.White,
+    duration = 3000L,
+    position = ToastPosition.TOP
+)
+```
+
+## Usage Examples
+
+### Toast with Action Button
+
+```kotlin
+Toast.show(
+    message = "Item deleted from cart",
+    actions = arrayOf(
+        ActionData("Undo") {
+            Toast.showSuccess("Action undone!")
+        }
+    )
+)
+```
+
+### Custom Position
+
+```kotlin
+// Top position
+Toast.show("Message at top", position = ToastPosition.TOP)
+
+// Center position
+Toast.show("Message at center", position = ToastPosition.CENTER)
+
+// Bottom position (default)
+Toast.show("Message at bottom", position = ToastPosition.BOTTOM)
+```
+
+### Custom Duration
+
+```kotlin
+Toast.show(
+    message = "This stays for 6 seconds",
+    duration = 6000L
+)
+```
+
+### In Dialogs
+
+For proper Toast display in Dialogs (especially on Android/iOS):
+
+```kotlin
+var showDialog by remember { mutableStateOf(false) }
+
+WithToastComposable(show = showDialog) { toastManager ->
+    AlertDialog(
+        onDismissRequest = { showDialog = false },
+        title = { Text("Dialog Example") },
+        text = {
+            DialogToastContent(toastManager = toastManager) {
+                Text("Click the button to show a toast!")
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                toastManager.showSuccess("Toast from Dialog!")
+            }) {
+                Text("Show Toast")
+            }
+        }
+    )
+}
+```
+
+### Custom Toast Layout
+
+You can provide a completely custom Toast layout:
+
+```kotlin
+ProvideToastManager(
+    toastContent = { toastData, maxWidth, onDismiss ->
+        CustomToastContent(toastData, maxWidth, onDismiss)
+    }
+) {
+    YourAppContent()
+}
+```
+
+### Using ToastManager directly
+
+```kotlin
+@Composable
+fun MyScreen() {
+    val toastManager = rememberToastManager()
+
+    Button(onClick = {
+        toastManager.showSuccess("Clicked!")
+    }) {
+        Text("Click Me")
+    }
+}
+```
+
+## API Reference
+
+### Toast (Global Object)
+
+- `Toast.show()` - Show custom toast
+- `Toast.showSuccess()` - Show success toast
+- `Toast.showError()` - Show error toast
+- `Toast.showWarning()` - Show warning toast
+- `Toast.showInfo()` - Show info toast
+- `Toast.clear()` - Clear all toasts
+
+### ToastManager (Instance)
+
+Use when you need more control or working with Dialogs:
+
+- `toastManager.showToast()` - Show custom toast
+- `toastManager.showSuccess()` - Show success toast
+- `toastManager.showError()` - Show error toast
+- `toastManager.showWarning()` - Show warning toast
+- `toastManager.showInfo()` - Show info toast
+- `toastManager.dismissCurrent()` - Dismiss current toast
+- `toastManager.clear()` - Clear all toasts
+
+### Components
+
+- `ProvideToastManager` - Setup toast manager at app root
+- `WithToastComposable` - Provide isolated toast manager for dialogs
+- `DialogToastContent` - Wrapper for dialog content with toast support
+- `rememberToastManager` - Get current toast manager instance
+
+## Platform Support
+
+| Platform | Support |
+|----------|---------|
+| Android  | ✅      |
+| iOS      | ✅      |
+| Desktop  | ✅      |
+| Web (JS) | ✅      |
+| WASM     | ✅      |
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
-[Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform/#compose-multiplatform),
-[Kotlin/Wasm](https://kotl.in/wasm/)…
-
-We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
-If you face any issues, please report them on [YouTrack](https://youtrack.jetbrains.com/newIssue?project=CMP).
+[badge-android]: http://img.shields.io/badge/-android-6EDB8D.svg?style=flat
+[badge-jvm]: http://img.shields.io/badge/-jvm-DB413D.svg?style=flat
+[badge-js]: http://img.shields.io/badge/-js-F8DB5D.svg?style=flat
+[badge-wasm]: https://img.shields.io/badge/-wasm-624FE8.svg?style=flat
+[badge-ios]: http://img.shields.io/badge/-ios-CDCDCD.svg?style=flat

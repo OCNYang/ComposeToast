@@ -38,14 +38,16 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 
 /**
- * Toast Host - Popup 方案
+ * Toast Host - Popup Implementation
  *
- * 使用 Popup 方式显示 Toast，解决两个关键问题：
- * 1. 只有 Toast 内容区域会拦截事件，其他区域可以正常交互
- * 2. Toast 可以显示在 Dialog 之上
+ * Uses Popup to display Toasts, solving two key issues:
+ * 1. Only the Toast content area intercepts events, other areas remain interactive
+ * 2. Toast can be displayed above Dialogs
  *
- * @param toastManager Toast 管理器
- * @param content 主内容
+ * @param toastManager Toast manager instance
+ * @param modifier Modifier for the host
+ * @param toastContent Custom Toast layout function
+ * @param content Main application content
  */
 @Composable
 fun ToastHost(
@@ -57,19 +59,19 @@ fun ToastHost(
         },
     content: @Composable () -> Unit
 ) {
-    // 主内容
+    // Main content
     Box(modifier = modifier.fillMaxSize()) {
         content()
     }
 
-    // Toast 使用 Popup 显示（独立的窗口层级）
+    // Toast displayed using Popup (independent window layer)
     val currentToast by toastManager.currentToast.collectAsState()
 
     currentToast?.let { toast ->
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
         ) {
-            // 计算 Toast 的最大宽度：屏幕宽度 - 32dp（左右各 16dp），但不超过 400dp
+            // Calculate Toast max width: screen width - 32dp (16dp padding on each side), capped at 400dp
             val maxToastWidth = remember(maxWidth) {
                 minOf(maxWidth - 32.dp, 400.dp)
             }
@@ -83,16 +85,16 @@ fun ToastHost(
                 offset = IntOffset(
                     x = 0,
                     y = when (toast.position) {
-                        ToastPosition.BOTTOM -> (-100).dp.value.toInt()  // 向上偏移 100dp，避免覆盖底部按钮
-                        ToastPosition.TOP -> 16.dp.value.toInt()          // 向下偏移 16dp，留出顶部空间
+                        ToastPosition.BOTTOM -> (-100).dp.value.toInt()  // Offset upward by 100dp to avoid bottom buttons
+                        ToastPosition.TOP -> 16.dp.value.toInt()          // Offset downward by 16dp for top padding
                         ToastPosition.CENTER -> 0
                     }
                 ),
                 properties = PopupProperties(
-                    focusable = false,  // 不抢夺焦点
-                    dismissOnBackPress = false,  // 不响应返回键
-                    dismissOnClickOutside = false,  // 点击外部不消失
-                    clippingEnabled = false  // 不裁剪，允许超出边界
+                    focusable = false,  // Don't steal focus
+                    dismissOnBackPress = false,  // Don't respond to back button
+                    dismissOnClickOutside = false,  // Don't dismiss on outside click
+                    clippingEnabled = false  // Allow content beyond bounds
                 )
             ) {
                 AnimatedVisibility(
@@ -128,7 +130,9 @@ fun ToastHost(
 }
 
 /**
- * Toast 内容组件
+ * Toast content component
+ *
+ * Displays the default Toast UI with icon, message, and action buttons
  */
 @Composable
 internal fun ToastContent(
@@ -137,7 +141,6 @@ internal fun ToastContent(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 使用自定义颜色或默认 Material 主题颜色
     val backgroundColor = toast.backgroundColor ?: MaterialTheme.colorScheme.surfaceVariant
     val textColor = toast.textColor ?: MaterialTheme.colorScheme.onSurfaceVariant
     val iconColor = toast.iconColor ?: MaterialTheme.colorScheme.primary
@@ -145,9 +148,9 @@ internal fun ToastContent(
 
     Card(
         modifier = modifier
-            .wrapContentWidth()     // 宽度自适应内容
-            .widthIn(max = maxWidth)  // 动态最大宽度
-            .wrapContentHeight(),   // 高度自适应内容
+            .wrapContentWidth()
+            .widthIn(max = maxWidth)
+            .wrapContentHeight(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = backgroundColor
@@ -156,12 +159,11 @@ internal fun ToastContent(
     ) {
         Row(
             modifier = Modifier
-                .wrapContentWidth()  // 宽度自适应内容，不再填充满
+                .wrapContentWidth()
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 图标（仅当 imageVector 不为 null 时显示）
             toast.imageVector?.let { icon ->
                 Icon(
                     imageVector = icon,
@@ -171,14 +173,12 @@ internal fun ToastContent(
                 )
             }
 
-            // 消息
             Text(
                 text = toast.message,
                 style = MaterialTheme.typography.bodyMedium,
                 color = textColor
             )
 
-            // 操作按钮列表
             toast.actions.forEach { action ->
                 TextButton(
                     onClick = {
