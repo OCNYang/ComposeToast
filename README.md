@@ -9,6 +9,8 @@
 
 A beautiful, customizable Toast library for Kotlin Multiplatform Compose with support for Android, iOS, Desktop, Web, and WASM.
 
+![ComposeToast Demo](ComposeToast.gif)
+
 ## Live Demo
 
 **[Try the Web Demo](https://ocnyang.github.io/ComposeToast/)**
