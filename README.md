@@ -1,6 +1,6 @@
 # Compose Toast
 
-[![](https://jitpack.io/v/yourusername/ComposeToast.svg)](https://jitpack.io/#yourusername/ComposeToast)
+[![](https://jitpack.io/v/ocnyang/ComposeToast.svg)](https://jitpack.io/#ocnyang/ComposeToast)
 ![badge][badge-android]
 ![badge][badge-ios]
 ![badge][badge-js]
@@ -11,7 +11,7 @@ A beautiful, customizable Toast library for Kotlin Multiplatform Compose with su
 
 ## Live Demo
 
-**[Try the Web Demo](https://yourusername.github.io/ComposeToast/)**
+**[Try the Web Demo](https://ocnyang.github.io/ComposeToast/)**
 
 Experience all the Toast features directly in your browser!
 
@@ -59,14 +59,14 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("com.github.yourusername:ComposeToast:1.0.0")
+                implementation("com.github.ocnyang:ComposeToast:1.0.0")
             }
         }
     }
 }
 ```
 
-Replace `yourusername` with your actual GitHub username and `1.0.0` with the desired version or tag.
+Replace `ocnyang` with your actual GitHub username and `1.0.0` with the desired version or tag.
 
 ## Quick Start
 
