@@ -2,19 +2,28 @@ package com.yhz.composetoast
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -27,13 +36,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun App() {
     MaterialTheme {
-        ProvideToastManager {
+        ProvideToastManager(toastContent = null) { // 可以通过这里自定义全局的 Toast Layout
             ToastDemoScreen()
         }
     }
@@ -70,11 +83,14 @@ fun ToastDemoScreen() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-
             // Long Toast
             Button(
                 onClick = {
-                    Toast.show("This's short Toast!")
+                    Toast.show(
+                        "This's short Toast!",
+                        backgroundColor = Color(0xe0000000),
+                        textColor = Color.White
+                    )
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
@@ -256,7 +272,45 @@ fun ToastDemoScreen() {
                 Text("Show Dialog (with Toast inside)")
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            Text(
+                text = "Custom Toast Layout Examples",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            val customToastManager = viewModel<ToastManager>()
+
+            ToastHost(
+                toastManager = customToastManager,
+                toastContent = { toastData, maxWidth, onDismiss ->
+                    CustomToastContent(toastData, maxWidth, onDismiss)
+                }
+            ) {
+                Button(
+                    onClick = {
+                        customToastManager.showToast(
+                            message = "I'm a Custom Toast",
+                            backgroundColor = Color.White,
+                            imageVector = ToastIcons.Success,
+                            actions = listOf(
+                                ActionData(label = "cancel", onAction = {}),
+                                ActionData(label = "submit", onAction = {}),
+                            )
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.tertiary
+                    )
+                ) {
+                    Text("Show Toast (with Custom Layout)")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(30.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             // Clear All
             OutlinedButton(
@@ -301,5 +355,72 @@ fun ToastDemoScreen() {
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun CustomToastContent(
+    toast: ToastData,
+    maxWidth: Dp,
+    onDismiss: () -> Unit,
+) {
+    // 使用自定义颜色或默认 Material 主题颜色
+    val backgroundColor = toast.backgroundColor ?: MaterialTheme.colorScheme.surfaceVariant
+    val textColor = toast.textColor ?: MaterialTheme.colorScheme.onSurfaceVariant
+    val iconColor = toast.iconColor ?: MaterialTheme.colorScheme.primary
+    val actionColor = MaterialTheme.colorScheme.primary
+
+    Card(
+        modifier = Modifier
+            .wrapContentWidth()     // 宽度自适应内容
+            .widthIn(max = maxWidth)  // 动态最大宽度
+            .wrapContentHeight(),   // 高度自适应内容
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .wrapContentWidth()  // 宽度自适应内容，不再填充满
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // 图标（仅当 imageVector 不为 null 时显示）
+            toast.imageVector?.let { icon ->
+                Icon(
+                    imageVector = icon,
+                    contentDescription = "Toast icon",
+                    tint = iconColor,
+                    modifier = Modifier.size(50.dp)
+                )
+            }
+
+            // 消息
+            Text(
+                text = toast.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = textColor
+            )
+
+            Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                // 操作按钮列表
+                toast.actions.forEach { action ->
+                    TextButton(
+                        onClick = {
+                            action.onAction()
+                            onDismiss()
+                        }
+                    ) {
+                        Text(
+                            text = action.label,
+                            color = action.actionColor ?: actionColor
+                        )
+                    }
+                }
+            }
+        }
     }
 }

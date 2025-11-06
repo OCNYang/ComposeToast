@@ -51,7 +51,7 @@ import androidx.compose.ui.window.PopupProperties
 fun ToastHost(
     toastManager: ToastManager,
     modifier: Modifier = Modifier,
-    toastContent: @Composable() AnimatedVisibilityScope.(ToastData, Dp, () -> Unit) -> Unit =
+    toastContent: @Composable() (ToastData, Dp, () -> Unit) -> Unit =
         { toastData, maxWidth, onDismiss ->
             ToastContent(toastData, maxWidth = maxWidth, onDismiss = onDismiss)
         },
@@ -116,7 +116,7 @@ fun ToastHost(
                         )
                     ) + fadeOut(animationSpec = tween(300)),
                 ) {
-                    this.toastContent(
+                    toastContent(
                         toast,
                         maxToastWidth,
                         { toastManager.dismissCurrent() }
@@ -131,7 +131,7 @@ fun ToastHost(
  * Toast 内容组件
  */
 @Composable
-private fun ToastContent(
+internal fun ToastContent(
     toast: ToastData,
     maxWidth: Dp,
     onDismiss: () -> Unit,

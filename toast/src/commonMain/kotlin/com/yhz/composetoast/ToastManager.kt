@@ -1,5 +1,6 @@
 package com.yhz.composetoast
 
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -7,6 +8,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
@@ -69,9 +71,9 @@ class ToastManager : ViewModel() {
         message: String,
         duration: Long = 2000L,
         imageVector: ImageVector = ToastIcons.Success,
-        backgroundColor: Color = Color(0x554CAF50),
-        textColor: Color = Color.White,
-        iconColor: Color = Color.White
+        backgroundColor: Color = ToastDefaults.Success.backgroundColor,
+        textColor: Color = ToastDefaults.Success.textColor,
+        iconColor: Color = ToastDefaults.Success.iconColor
     ) {
         showToast(
             message = message,
@@ -90,9 +92,9 @@ class ToastManager : ViewModel() {
         message: String,
         duration: Long = 3000L,
         imageVector: ImageVector = ToastIcons.Error,
-        backgroundColor: Color = Color(0xFFF44336),
-        textColor: Color = Color.White,
-        iconColor: Color = Color.White
+        backgroundColor: Color = ToastDefaults.Error.backgroundColor,
+        textColor: Color = ToastDefaults.Error.textColor,
+        iconColor: Color = ToastDefaults.Error.iconColor
     ) {
         showToast(
             message = message,
@@ -111,9 +113,9 @@ class ToastManager : ViewModel() {
         message: String,
         duration: Long = 2500L,
         imageVector: ImageVector = ToastIcons.Warning,
-        backgroundColor: Color = Color(0xFFFF9800),
-        textColor: Color = Color.White,
-        iconColor: Color = Color.White
+        backgroundColor: Color = ToastDefaults.Warning.backgroundColor,
+        textColor: Color = ToastDefaults.Warning.textColor,
+        iconColor: Color = ToastDefaults.Warning.iconColor
     ) {
         showToast(
             message = message,
@@ -132,9 +134,9 @@ class ToastManager : ViewModel() {
         message: String,
         duration: Long = 2000L,
         imageVector: ImageVector = ToastIcons.Info,
-        backgroundColor: Color? = null,
-        textColor: Color? = null,
-        iconColor: Color? = null
+        backgroundColor: Color? = ToastDefaults.Info.backgroundColor,
+        textColor: Color? = ToastDefaults.Info.textColor,
+        iconColor: Color? = ToastDefaults.Info.iconColor
     ) {
         showToast(
             message = message,
@@ -252,9 +254,9 @@ object Toast {
         message: String,
         duration: Long = 2000L,
         imageVector: ImageVector = ToastIcons.Info,
-        backgroundColor: Color? = null,
-        textColor: Color? = null,
-        iconColor: Color? = null
+        backgroundColor: Color? = ToastDefaults.Info.backgroundColor,
+        textColor: Color? = ToastDefaults.Info.textColor,
+        iconColor: Color? = ToastDefaults.Info.iconColor
     ) {
         get().showInfo(message, duration, imageVector, backgroundColor, textColor, iconColor)
     }
@@ -266,9 +268,9 @@ object Toast {
         message: String,
         duration: Long = 2000L,
         imageVector: ImageVector = ToastIcons.Success,
-        backgroundColor: Color = Color(0xfc4CAF50),
-        textColor: Color = Color.White,
-        iconColor: Color = Color.White
+        backgroundColor: Color = ToastDefaults.Success.backgroundColor,
+        textColor: Color = ToastDefaults.Success.textColor,
+        iconColor: Color = ToastDefaults.Success.iconColor
     ) {
         get().showSuccess(message, duration, imageVector, backgroundColor, textColor, iconColor)
     }
@@ -280,9 +282,9 @@ object Toast {
         message: String,
         duration: Long = 2500L,
         imageVector: ImageVector = ToastIcons.Warning,
-        backgroundColor: Color = Color(0xFFFF9800),
-        textColor: Color = Color.White,
-        iconColor: Color = Color.White
+        backgroundColor: Color = ToastDefaults.Warning.backgroundColor,
+        textColor: Color = ToastDefaults.Warning.textColor,
+        iconColor: Color = ToastDefaults.Warning.iconColor
     ) {
         get().showWarning(message, duration, imageVector, backgroundColor, textColor, iconColor)
     }
@@ -294,9 +296,9 @@ object Toast {
         message: String,
         duration: Long = 3000L,
         imageVector: ImageVector = ToastIcons.Error,
-        backgroundColor: Color = Color(0xFFF44336),
-        textColor: Color = Color.White,
-        iconColor: Color = Color.White
+        backgroundColor: Color = ToastDefaults.Error.backgroundColor,
+        textColor: Color = ToastDefaults.Error.textColor,
+        iconColor: Color = ToastDefaults.Error.iconColor
     ) {
         get().showError(message, duration, imageVector, backgroundColor, textColor, iconColor)
     }
@@ -339,6 +341,7 @@ val LocalToastManager = compositionLocalOf<ToastManager?> { null }
  */
 @Composable
 fun ProvideToastManager(
+    toastContent: (@Composable() (ToastData, Dp, () -> Unit) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     val toastManager = remember { ToastManager() }
@@ -350,7 +353,12 @@ fun ProvideToastManager(
     }
 
     CompositionLocalProvider(LocalToastManager provides toastManager) {
-        ToastHost(toastManager = toastManager) {
+        ToastHost(
+            toastManager = toastManager,
+            toastContent = toastContent ?: { toastData, maxWidth, onDismiss ->
+                ToastContent(toastData, maxWidth = maxWidth, onDismiss = onDismiss)
+            }
+        ) {
             content()
         }
     }

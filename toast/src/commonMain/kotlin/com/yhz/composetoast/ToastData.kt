@@ -13,6 +13,51 @@ enum class ToastPosition {
 }
 
 /**
+ * Toast 默认颜色配置
+ *
+ * 可以通过修改这个对象来自定义全局的 Toast 颜色
+ */
+object ToastDefaults {
+    /**
+     * 成功 Toast 默认颜色
+     */
+    object Success {
+        val backgroundColor = Color(0xf64CAF50)
+        val textColor = Color.White
+        val iconColor = Color.White
+    }
+
+    /**
+     * 错误 Toast 默认颜色
+     */
+    object Error {
+        val backgroundColor = Color(0xF6F44336)
+        val textColor = Color.White
+        val iconColor = Color.White
+    }
+
+    /**
+     * 警告 Toast 默认颜色
+     */
+    object Warning {
+        val backgroundColor = Color(0xF6FF9800)
+        val textColor = Color.White
+        val iconColor = Color.White
+    }
+
+    /**
+     * 信息 Toast 默认颜色
+     *
+     * 注意：Info Toast 默认使用 null，会自动使用 Material Theme 颜色
+     */
+    object Info {
+        val backgroundColor: Color? = null
+        val textColor: Color? = null
+        val iconColor: Color? = null
+    }
+}
+
+/**
  * Toast 操作按钮数据
  *
  * @param label 按钮文本
