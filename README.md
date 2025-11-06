@@ -1,5 +1,7 @@
 # Compose Toast
 
+English | [简体中文](README_CN.md)
+
 [![](https://jitpack.io/v/ocnyang/ComposeToast.svg)](https://jitpack.io/#ocnyang/ComposeToast)
 ![badge][badge-android]
 ![badge][badge-ios]
