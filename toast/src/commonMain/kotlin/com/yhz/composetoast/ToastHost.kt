@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -33,12 +34,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 
 /**
- * Toast Host - Overlay 方案
+ * Toast Host - Popup 方案
  *
- * 使用 Overlay 方式显示 Toast，不阻挡用户交互
+ * 使用 Popup 方式显示 Toast，解决两个关键问题：
+ * 1. 只有 Toast 内容区域会拦截事件，其他区域可以正常交互
+ * 2. Toast 可以显示在 Dialog 之上
  *
  * @param toastManager Toast 管理器
  * @param content 主内容
@@ -49,44 +53,63 @@ fun ToastHost(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
+    // 主内容
     Box(modifier = modifier.fillMaxSize()) {
-        // 主内容
         content()
+    }
 
-        // Toast 悬浮层
-        val currentToast by toastManager.currentToast.collectAsState()
+    // Toast 使用 Popup 显示（独立的窗口层级）
+    val currentToast by toastManager.currentToast.collectAsState()
 
-        currentToast?.let { toast ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .zIndex(Float.MAX_VALUE), // 确保在最上层
-                contentAlignment = when (toast.position) {
-                    ToastPosition.TOP -> Alignment.TopCenter
-                    ToastPosition.CENTER -> Alignment.Center
-                    ToastPosition.BOTTOM -> Alignment.BottomCenter
-                }
+    currentToast?.let { toast ->
+        Popup(
+            alignment = when (toast.position) {
+                ToastPosition.TOP -> Alignment.TopCenter
+                ToastPosition.CENTER -> Alignment.Center
+                ToastPosition.BOTTOM -> Alignment.BottomCenter
+            },
+            properties = PopupProperties(
+                focusable = false,  // 不抢夺焦点
+                dismissOnBackPress = false,  // 不响应返回键
+                dismissOnClickOutside = false,  // 点击外部不消失
+                clippingEnabled = false  // 不裁剪，允许超出边界
+            )
+        ) {
+            AnimatedVisibility(
+                visible = true,
+                enter = slideInVertically(
+                    initialOffsetY = {
+                        if (toast.position == ToastPosition.TOP) -it else it
+                    },
+                    animationSpec = tween(
+                        durationMillis = 300,
+                        easing = FastOutSlowInEasing
+                    )
+                ) + fadeIn(animationSpec = tween(300)),
+                exit = slideOutVertically(
+                    targetOffsetY = {
+                        if (toast.position == ToastPosition.TOP) -it else it
+                    },
+                    animationSpec = tween(
+                        durationMillis = 300,
+                        easing = FastOutSlowInEasing
+                    )
+                ) + fadeOut(animationSpec = tween(300))
             ) {
-                AnimatedVisibility(
-                    visible = true,
-                    enter = slideInVertically(
-                        initialOffsetY = {
-                            if (toast.position == ToastPosition.TOP) -it else it
+                // 添加智能 padding，避免覆盖重要交互区域
+                Box(
+                    modifier = Modifier.padding(
+                        top = when (toast.position) {
+                            ToastPosition.TOP -> 16.dp
+                            else -> 0.dp
                         },
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            easing = FastOutSlowInEasing
-                        )
-                    ) + fadeIn(animationSpec = tween(300)),
-                    exit = slideOutVertically(
-                        targetOffsetY = {
-                            if (toast.position == ToastPosition.TOP) -it else it
+                        bottom = when (toast.position) {
+                            ToastPosition.BOTTOM -> 100.dp  // 底部留更多空间，避免覆盖按钮
+                            else -> 0.dp
                         },
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            easing = FastOutSlowInEasing
-                        )
-                    ) + fadeOut(animationSpec = tween(300))
+                        start = 16.dp,
+                        end = 16.dp
+                    )
                 ) {
                     ToastContent(
                         toast = toast,
@@ -111,8 +134,8 @@ private fun ToastContent(
 
     Card(
         modifier = modifier
-            .padding(16.dp)
-            .widthIn(max = 600.dp),
+            .widthIn(max = 400.dp)  // 减小最大宽度，减少阻挡面积
+            .wrapContentHeight(),   // 高度自适应内容
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = colors.background

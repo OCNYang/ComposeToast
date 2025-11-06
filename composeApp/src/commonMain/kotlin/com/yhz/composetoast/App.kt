@@ -1,6 +1,8 @@
 package com.yhz.composetoast
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -22,6 +24,8 @@ fun App() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToastDemoScreen(toastManager: ToastManager) {
+    var showDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -35,7 +39,7 @@ fun ToastDemoScreen(toastManager: ToastManager) {
     ) { paddingValues ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -100,7 +104,7 @@ fun ToastDemoScreen(toastManager: ToastManager) {
                 Text("Show Error Toast")
             }
 
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             Text(
                 text = "Advanced Examples",
@@ -183,6 +187,27 @@ fun ToastDemoScreen(toastManager: ToastManager) {
                 Text("Show 5 Toasts (Queue Demo)")
             }
 
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            Text(
+                text = "Dialog Examples",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            // Show Dialog with Toast
+            Button(
+                onClick = {
+                    showDialog = true
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary
+                )
+            ) {
+                Text("Show Dialog (with Toast inside)")
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
             // Clear All
@@ -195,5 +220,34 @@ fun ToastDemoScreen(toastManager: ToastManager) {
                 Text("Clear All Toasts")
             }
         }
+    }
+
+    // Dialog
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text("Dialog Example")
+            },
+            text = {
+                Text("Click the button below to show a toast from inside this dialog!")
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        toastManager.showSuccess("Toast shown from Dialog!")
+                    }
+                ) {
+                    Text("Show Toast")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDialog = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
