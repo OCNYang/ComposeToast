@@ -104,6 +104,19 @@ fun ToastDemoScreen(toastManager: ToastManager) {
                 Text("Show Error Toast")
             }
 
+            // Long Toast
+            Button(
+                onClick = {
+                    toastManager.showError("Show Long long long long long long long long long long long long long long Toast!")
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Show Long Toast")
+            }
+
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             Text(
@@ -230,7 +243,10 @@ fun ToastDemoScreen(toastManager: ToastManager) {
                 Text("Dialog Example")
             },
             text = {
-                Text("Click the button below to show a toast from inside this dialog!")
+                // 使用 dialogToastContent 包装，自动处理跨平台 Toast 显示
+                dialogToastContent(toastManager) {
+                    Text("Click the button below to show a toast from inside this dialog!")
+                }
             },
             confirmButton = {
                 Button(
