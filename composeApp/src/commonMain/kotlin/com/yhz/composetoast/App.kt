@@ -41,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun App() {
@@ -280,7 +279,7 @@ fun ToastDemoScreen() {
                 color = MaterialTheme.colorScheme.primary
             )
 
-            val customToastManager = viewModel<ToastManager>()
+            val customToastManager = remember { ToastManager() }
 
             ToastHost(
                 toastManager = customToastManager,
