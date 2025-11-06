@@ -44,8 +44,8 @@ import androidx.compose.runtime.Composable
  * @param content Dialog 的内容
  */
 @Composable
-fun dialogToastContent(
-    toastManager: ToastManager,
+fun DialogToastContent(
+    toastManager: ToastManager = rememberToastManager(),
     content: @Composable () -> Unit
 ) {
     if (needsDialogToastWrapper()) {

@@ -10,20 +10,16 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun App() {
-    val toastManager = remember { ToastManager() }
-
     MaterialTheme {
-        ToastHost(
-            toastManager = toastManager
-        ) {
-            ToastDemoScreen(toastManager = toastManager)
+        ProvideToastManager {
+            ToastDemoScreen()
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ToastDemoScreen(toastManager: ToastManager) {
+fun ToastDemoScreen() {
     var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -55,7 +51,7 @@ fun ToastDemoScreen(toastManager: ToastManager) {
             // Info Toast
             Button(
                 onClick = {
-                    toastManager.showInfo("This is an informational message")
+                    Toast.showInfo("This is an informational message")
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
@@ -68,7 +64,7 @@ fun ToastDemoScreen(toastManager: ToastManager) {
             // Success Toast
             Button(
                 onClick = {
-                    toastManager.showSuccess("Operation completed successfully!")
+                    Toast.showSuccess("Operation completed successfully!")
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
@@ -81,7 +77,7 @@ fun ToastDemoScreen(toastManager: ToastManager) {
             // Warning Toast
             Button(
                 onClick = {
-                    toastManager.showWarning("Please check your input carefully")
+                    Toast.showWarning("Please check your input carefully")
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
@@ -94,7 +90,7 @@ fun ToastDemoScreen(toastManager: ToastManager) {
             // Error Toast
             Button(
                 onClick = {
-                    toastManager.showError("An error occurred while processing!")
+                    Toast.showError("An error occurred while processing!")
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
@@ -107,7 +103,7 @@ fun ToastDemoScreen(toastManager: ToastManager) {
             // Long Toast
             Button(
                 onClick = {
-                    toastManager.showError("Show Long long long long long long long long long long long long long long Toast!")
+                    Toast.showError("Show Long long long long long long long long long long long long long long Toast!")
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
@@ -128,12 +124,12 @@ fun ToastDemoScreen(toastManager: ToastManager) {
             // Toast with Action
             Button(
                 onClick = {
-                    toastManager.showToast(
+                    Toast.show(
                         message = "Item deleted from your cart",
                         type = ToastType.INFO,
                         actionLabel = "Undo",
                         onAction = {
-                            toastManager.showSuccess("Action undone!")
+                            Toast.showSuccess("Action undone!")
                         }
                     )
                 },
@@ -145,7 +141,7 @@ fun ToastDemoScreen(toastManager: ToastManager) {
             // Top Position Toast
             Button(
                 onClick = {
-                    toastManager.showToast(
+                    Toast.show(
                         message = "This toast appears at the top",
                         type = ToastType.INFO,
                         position = ToastPosition.TOP
@@ -159,7 +155,7 @@ fun ToastDemoScreen(toastManager: ToastManager) {
             // Center Position Toast
             Button(
                 onClick = {
-                    toastManager.showToast(
+                    Toast.show(
                         message = "This toast appears in the center",
                         type = ToastType.WARNING,
                         position = ToastPosition.CENTER
@@ -173,7 +169,7 @@ fun ToastDemoScreen(toastManager: ToastManager) {
             // Long Duration Toast
             Button(
                 onClick = {
-                    toastManager.showToast(
+                    Toast.show(
                         message = "This toast stays for 6 seconds",
                         type = ToastType.INFO,
                         duration = 6000L
@@ -188,7 +184,7 @@ fun ToastDemoScreen(toastManager: ToastManager) {
             Button(
                 onClick = {
                     repeat(5) { index ->
-                        toastManager.showInfo("Toast message #${index + 1}")
+                        Toast.showInfo("Toast message #${index + 1}")
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -226,7 +222,7 @@ fun ToastDemoScreen(toastManager: ToastManager) {
             // Clear All
             OutlinedButton(
                 onClick = {
-                    toastManager.clear()
+                    Toast.clear()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -238,20 +234,21 @@ fun ToastDemoScreen(toastManager: ToastManager) {
     // Dialog
     if (showDialog) {
         AlertDialog(
+            modifier = Modifier.fillMaxHeight(0.4f),
             onDismissRequest = { showDialog = false },
             title = {
                 Text("Dialog Example")
             },
             text = {
                 // 使用 dialogToastContent 包装，自动处理跨平台 Toast 显示
-                dialogToastContent(toastManager) {
+                DialogToastContent() {
                     Text("Click the button below to show a toast from inside this dialog!")
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        toastManager.showSuccess("Toast shown from Dialog!")
+                        Toast.showSuccess("Toast shown from Dialog!")
                     }
                 ) {
                     Text("Show Toast")
