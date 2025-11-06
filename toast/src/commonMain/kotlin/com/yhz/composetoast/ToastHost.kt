@@ -1,28 +1,27 @@
 package com.yhz.composetoast
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -53,6 +51,10 @@ import androidx.compose.ui.window.PopupProperties
 fun ToastHost(
     toastManager: ToastManager,
     modifier: Modifier = Modifier,
+    toastContent: @Composable() AnimatedVisibilityScope.(ToastData, Dp, () -> Unit) -> Unit =
+        { toastData, maxWidth, onDismiss ->
+            ToastContent(toastData, maxWidth = maxWidth, onDismiss = onDismiss)
+        },
     content: @Composable () -> Unit
 ) {
     // 主内容
@@ -112,12 +114,12 @@ fun ToastHost(
                             durationMillis = 300,
                             easing = FastOutSlowInEasing
                         )
-                    ) + fadeOut(animationSpec = tween(300))
+                    ) + fadeOut(animationSpec = tween(300)),
                 ) {
-                    ToastContent(
-                        toast = toast,
-                        maxWidth = maxToastWidth,
-                        onDismiss = { toastManager.dismissCurrent() }
+                    this.toastContent(
+                        toast,
+                        maxToastWidth,
+                        { toastManager.dismissCurrent() }
                     )
                 }
             }
@@ -135,53 +137,58 @@ private fun ToastContent(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colors = getToastColors(toast.type)
+    // 使用自定义颜色或默认 Material 主题颜色
+    val backgroundColor = toast.backgroundColor ?: MaterialTheme.colorScheme.surfaceVariant
+    val textColor = toast.textColor ?: MaterialTheme.colorScheme.onSurfaceVariant
+    val iconColor = toast.iconColor ?: MaterialTheme.colorScheme.primary
+    val actionColor = MaterialTheme.colorScheme.primary
 
     Card(
         modifier = modifier
             .wrapContentWidth()     // 宽度自适应内容
             .widthIn(max = maxWidth)  // 动态最大宽度
-            .wrapContentHeight()   // 高度自适应内容
-            ,  // 内部边距，不影响事件范围
+            .wrapContentHeight(),   // 高度自适应内容
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = colors.background
+            containerColor = backgroundColor
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Row(
             modifier = Modifier
                 .wrapContentWidth()  // 宽度自适应内容，不再填充满
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 图标
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(colors.icon, CircleShape)
-            )
+            // 图标（仅当 imageVector 不为 null 时显示）
+            toast.imageVector?.let { icon ->
+                Icon(
+                    imageVector = icon,
+                    contentDescription = "Toast icon",
+                    tint = iconColor,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
 
             // 消息
             Text(
                 text = toast.message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.text
-                // 移除 weight(1f)，让文本自然决定宽度
+                color = textColor
             )
 
-            // 操作按钮
-            toast.actionLabel?.let { label ->
+            // 操作按钮列表
+            toast.actions.forEach { action ->
                 TextButton(
                     onClick = {
-                        toast.onAction?.invoke()
+                        action.onAction()
                         onDismiss()
                     }
                 ) {
                     Text(
-                        text = label,
-                        color = colors.action
+                        text = action.label,
+                        color = action.actionColor ?: actionColor
                     )
                 }
             }
@@ -189,46 +196,4 @@ private fun ToastContent(
     }
 }
 
-/**
- * Toast 颜色配置
- */
-private data class ToastColors(
-    val background: Color,
-    val icon: Color,
-    val text: Color,
-    val action: Color
-)
-
-/**
- * 获取 Toast 颜色
- */
-@Composable
-private fun getToastColors(type: ToastType): ToastColors {
-    return when (type) {
-        ToastType.INFO -> ToastColors(
-            background = MaterialTheme.colorScheme.surfaceVariant,
-            icon = MaterialTheme.colorScheme.primary,
-            text = MaterialTheme.colorScheme.onSurfaceVariant,
-            action = MaterialTheme.colorScheme.primary
-        )
-        ToastType.SUCCESS -> ToastColors(
-            background = Color(0xFF4CAF50).copy(alpha = 0.95f),
-            icon = Color.White,
-            text = Color.White,
-            action = Color.White
-        )
-        ToastType.WARNING -> ToastColors(
-            background = Color(0xFFFF9800).copy(alpha = 0.95f),
-            icon = Color.White,
-            text = Color.White,
-            action = Color.White
-        )
-        ToastType.ERROR -> ToastColors(
-            background = Color(0xFFF44336).copy(alpha = 0.95f),
-            icon = Color.White,
-            text = Color.White,
-            action = Color.White
-        )
-    }
-}
 

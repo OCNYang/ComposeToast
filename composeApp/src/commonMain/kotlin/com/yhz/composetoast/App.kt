@@ -1,10 +1,32 @@
 package com.yhz.composetoast
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -47,6 +69,35 @@ fun ToastDemoScreen() {
             )
 
             Spacer(modifier = Modifier.height(8.dp))
+
+
+            // Long Toast
+            Button(
+                onClick = {
+                    Toast.show("This's short Toast!")
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            ) {
+                Text("Show text Toast")
+            }
+
+            // Long Toast
+            Button(
+                onClick = {
+                    Toast.show("Show Long long long long long long long long long long long long long long Toast!")
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            ) {
+                Text("Show Long-text Toast")
+            }
 
             // Info Toast
             Button(
@@ -100,18 +151,6 @@ fun ToastDemoScreen() {
                 Text("Show Error Toast")
             }
 
-            // Long Toast
-            Button(
-                onClick = {
-                    Toast.showError("Show Long long long long long long long long long long long long long long Toast!")
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Text("Show Long Toast")
-            }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -126,11 +165,14 @@ fun ToastDemoScreen() {
                 onClick = {
                     Toast.show(
                         message = "Item deleted from your cart",
-                        type = ToastType.INFO,
-                        actionLabel = "Undo",
-                        onAction = {
-                            Toast.showSuccess("Action undone!")
-                        }
+                        actions = arrayOf(
+                            ActionData(
+                                "Undo",
+                                onAction = {
+                                    Toast.showSuccess("Action undone!")
+                                }
+                            )
+                        )
                     )
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -143,7 +185,6 @@ fun ToastDemoScreen() {
                 onClick = {
                     Toast.show(
                         message = "This toast appears at the top",
-                        type = ToastType.INFO,
                         position = ToastPosition.TOP
                     )
                 },
@@ -157,7 +198,6 @@ fun ToastDemoScreen() {
                 onClick = {
                     Toast.show(
                         message = "This toast appears in the center",
-                        type = ToastType.WARNING,
                         position = ToastPosition.CENTER
                     )
                 },
@@ -171,7 +211,6 @@ fun ToastDemoScreen() {
                 onClick = {
                     Toast.show(
                         message = "This toast stays for 6 seconds",
-                        type = ToastType.INFO,
                         duration = 6000L
                     )
                 },
@@ -232,7 +271,7 @@ fun ToastDemoScreen() {
     }
 
     // Dialog
-    if (showDialog) {
+    WithToastComposable(showDialog) { toastManager ->
         AlertDialog(
             modifier = Modifier.fillMaxHeight(0.4f),
             onDismissRequest = { showDialog = false },
@@ -241,14 +280,14 @@ fun ToastDemoScreen() {
             },
             text = {
                 // 使用 dialogToastContent 包装，自动处理跨平台 Toast 显示
-                DialogToastContent() {
+                DialogToastContent(toastManager = toastManager) {
                     Text("Click the button below to show a toast from inside this dialog!")
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        Toast.showSuccess("Toast shown from Dialog!")
+                        toastManager.showSuccess("Toast shown from Dialog!")
                     }
                 ) {
                     Text("Show Toast")

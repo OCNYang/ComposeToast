@@ -5,6 +5,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
@@ -33,19 +35,23 @@ class ToastManager : ViewModel() {
      */
     fun showToast(
         message: String,
-        type: ToastType = ToastType.INFO,
-        duration: Long = 3000L,
+        imageVector: ImageVector? = null,
+        backgroundColor: Color? = null,
+        textColor: Color? = null,
+        iconColor: Color? = null,
+        duration: Long = 2000L,
         position: ToastPosition = ToastPosition.BOTTOM,
-        actionLabel: String? = null,
-        onAction: (() -> Unit)? = null
+        actions: List<ActionData> = emptyList()
     ) {
         val toast = ToastData(
             message = message,
-            type = type,
+            imageVector = imageVector,
+            backgroundColor = backgroundColor,
+            textColor = textColor,
+            iconColor = iconColor,
             duration = duration,
             position = position,
-            actionLabel = actionLabel,
-            onAction = onAction
+            actions = actions
         )
 
         _toastQueue.update { it + toast }
@@ -59,29 +65,85 @@ class ToastManager : ViewModel() {
     /**
      * 显示成功 Toast
      */
-    fun showSuccess(message: String, duration: Long = 3000L) {
-        showToast(message, ToastType.SUCCESS, duration)
+    fun showSuccess(
+        message: String,
+        duration: Long = 2000L,
+        imageVector: ImageVector = ToastIcons.Success,
+        backgroundColor: Color = Color(0x554CAF50),
+        textColor: Color = Color.White,
+        iconColor: Color = Color.White
+    ) {
+        showToast(
+            message = message,
+            imageVector = imageVector,
+            backgroundColor = backgroundColor,
+            textColor = textColor,
+            iconColor = iconColor,
+            duration = duration
+        )
     }
 
     /**
      * 显示错误 Toast
      */
-    fun showError(message: String, duration: Long = 4000L) {
-        showToast(message, ToastType.ERROR, duration)
+    fun showError(
+        message: String,
+        duration: Long = 3000L,
+        imageVector: ImageVector = ToastIcons.Error,
+        backgroundColor: Color = Color(0xFFF44336),
+        textColor: Color = Color.White,
+        iconColor: Color = Color.White
+    ) {
+        showToast(
+            message = message,
+            imageVector = imageVector,
+            backgroundColor = backgroundColor,
+            textColor = textColor,
+            iconColor = iconColor,
+            duration = duration
+        )
     }
 
     /**
      * 显示警告 Toast
      */
-    fun showWarning(message: String, duration: Long = 3500L) {
-        showToast(message, ToastType.WARNING, duration)
+    fun showWarning(
+        message: String,
+        duration: Long = 2500L,
+        imageVector: ImageVector = ToastIcons.Warning,
+        backgroundColor: Color = Color(0xFFFF9800),
+        textColor: Color = Color.White,
+        iconColor: Color = Color.White
+    ) {
+        showToast(
+            message = message,
+            imageVector = imageVector,
+            backgroundColor = backgroundColor,
+            textColor = textColor,
+            iconColor = iconColor,
+            duration = duration
+        )
     }
 
     /**
      * 显示信息 Toast
      */
-    fun showInfo(message: String, duration: Long = 3000L) {
-        showToast(message, ToastType.INFO, duration)
+    fun showInfo(
+        message: String,
+        duration: Long = 2000L,
+        imageVector: ImageVector = ToastIcons.Info,
+        backgroundColor: Color? = null,
+        textColor: Color? = null,
+        iconColor: Color? = null
+    ) {
+        showToast(
+            message = message,
+            imageVector = imageVector,
+            backgroundColor = backgroundColor,
+            textColor = textColor,
+            iconColor = iconColor,
+            duration = duration
+        )
     }
 
     /**
@@ -163,41 +225,80 @@ object Toast {
      */
     fun show(
         message: String,
-        type: ToastType = ToastType.INFO,
+        imageVector: ImageVector? = null,
+        backgroundColor: Color? = null,
+        textColor: Color? = null,
+        iconColor: Color? = null,
         duration: Long = 2000L,
         position: ToastPosition = ToastPosition.BOTTOM,
-        actionLabel: String? = null,
-        onAction: (() -> Unit)? = null
+        vararg actions: ActionData
     ) {
-        get().showToast(message, type, duration, position, actionLabel, onAction)
+        get().showToast(
+            message = message,
+            imageVector = imageVector,
+            backgroundColor = backgroundColor,
+            textColor = textColor,
+            iconColor = iconColor,
+            duration = duration,
+            position = position,
+            actions = actions.toList()
+        )
     }
 
     /**
      * 显示信息 Toast
      */
-    fun showInfo(message: String, duration: Long = 2000L) {
-        get().showInfo(message, duration)
+    fun showInfo(
+        message: String,
+        duration: Long = 2000L,
+        imageVector: ImageVector = ToastIcons.Info,
+        backgroundColor: Color? = null,
+        textColor: Color? = null,
+        iconColor: Color? = null
+    ) {
+        get().showInfo(message, duration, imageVector, backgroundColor, textColor, iconColor)
     }
 
     /**
      * 显示成功 Toast
      */
-    fun showSuccess(message: String, duration: Long = 2000L) {
-        get().showSuccess(message, duration)
+    fun showSuccess(
+        message: String,
+        duration: Long = 2000L,
+        imageVector: ImageVector = ToastIcons.Success,
+        backgroundColor: Color = Color(0xfc4CAF50),
+        textColor: Color = Color.White,
+        iconColor: Color = Color.White
+    ) {
+        get().showSuccess(message, duration, imageVector, backgroundColor, textColor, iconColor)
     }
 
     /**
      * 显示警告 Toast
      */
-    fun showWarning(message: String, duration: Long = 2500L) {
-        get().showWarning(message, duration)
+    fun showWarning(
+        message: String,
+        duration: Long = 2500L,
+        imageVector: ImageVector = ToastIcons.Warning,
+        backgroundColor: Color = Color(0xFFFF9800),
+        textColor: Color = Color.White,
+        iconColor: Color = Color.White
+    ) {
+        get().showWarning(message, duration, imageVector, backgroundColor, textColor, iconColor)
     }
 
     /**
      * 显示错误 Toast
      */
-    fun showError(message: String, duration: Long = 3000L) {
-        get().showError(message, duration)
+    fun showError(
+        message: String,
+        duration: Long = 3000L,
+        imageVector: ImageVector = ToastIcons.Error,
+        backgroundColor: Color = Color(0xFFF44336),
+        textColor: Color = Color.White,
+        iconColor: Color = Color.White
+    ) {
+        get().showError(message, duration, imageVector, backgroundColor, textColor, iconColor)
     }
 
     /**
