@@ -6,7 +6,18 @@
       "Bash(./gradlew:*)",
       "Bash(cat:*)",
       "Bash(lsof:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(chmod:*)",
+      "Bash(gpg:*)",
+      "Bash(./publish-central-portal.sh:*)",
+      "Bash(timeout:*)",
+      "Bash(./generate-bundle.sh:*)",
+      "Bash(jar:*)",
+      "Bash(unzip:*)",
+      "Bash(./verify-bundle.sh)",
+      "Bash(for:*)",
+      "Bash(do echo \"验证: $file\")",
+      "Bash(done:*)"
     ],
     "deny": [],
     "ask": []
