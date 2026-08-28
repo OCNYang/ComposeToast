@@ -63,7 +63,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("com.github.ocnyang:ComposeToast:1.0.0")
+                implementation("com.github.OCNYang.ComposeToast:toast:1.0.0")
             }
         }
     }
